@@ -74,7 +74,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         uint64 chainSelector,
         address receiver
     ) public returns (bytes32) {
-        //transfer NFT to this addree to lock the NFT
+        //transfer NFT to this address to lock the NFT
         nft.transferFrom(msg.sender, address(this), tokenId);
         //construct data to sent
         bytes memory payload = abi.encode(tokenId, newOwner);
