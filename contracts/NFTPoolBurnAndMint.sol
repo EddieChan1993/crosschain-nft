@@ -76,6 +76,7 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         uint64 chainSelector,
         address receiver
     ) public returns (bytes32) {
+        //先lock再burn ，调用transferFrom来lock 为了确保合约拥有销毁权限
         //transfer NFT to this address to lock the NFT
         wnft.transferFrom(msg.sender, address(this), tokenId);
         //burn the wnft before send to ccip
