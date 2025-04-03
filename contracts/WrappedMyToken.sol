@@ -10,7 +10,7 @@ contract WrappedMyToken is MyToken {
         string memory tokenSymbol
     ) MyToken(tokenName, tokenSymbol) {}
 
-    function mintTOkenWithTokenId(address to, uint256 tokenId) public {
+    function mintTokenWithTokenId(address to, uint256 tokenId) public {
         _safeMint(to, tokenId);
     }
 }
