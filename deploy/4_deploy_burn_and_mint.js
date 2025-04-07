@@ -13,12 +13,12 @@ module.exports = async ({getNamedAccounts, deployments}) => {
     ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", // 合约名称
         mockCCIPSimulator.address // 合约部署地址
     );
-    const ccipConfig = ccipSimulator.configure();
+    const ccipConfig =await ccipSimulator.configuration();
     _router = ccipConfig.destinationRouter_;
     _link = ccipConfig.linkToken_;
 
     const myToken = await deployments.get("WrappedMyToken");
-    wnftAddr = myToken.addrss
+    wnftAddr = myToken.address
     // 3. 执行部署动作：部署名为 "MockV3Aggregator" 位价合约
     await deploy("NFTPoolBurnAndMint", {
         contract: "NFTPoolBurnAndMint",
@@ -32,4 +32,4 @@ module.exports = async ({getNamedAccounts, deployments}) => {
 // 4. 定义部署标签（tags），用于选择性部署
 // 执行 `npx hardhat deploy` 会部署所有带 "all" 标签的脚本
 // 执行 `npx hardhat deploy --tags fundme` 仅部署当前脚本
-module.exports.tags = ["all", "destcahin"];
+module.exports.tags = ["all", "destchain"];

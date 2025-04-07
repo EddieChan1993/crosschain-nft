@@ -8,10 +8,10 @@ module.exports = async ({getNamedAccounts, deployments}) => {
     log("Deploying WrappedMyToken contract")
 
     // 3. 执行部署动作：部署名为 "MockV3Aggregator" 位价合约
-    await deploy("WrappedMyToken.sol", {
-        contract: "WrappedMyToken.sol",
+    await deploy("WrappedMyToken", {
+        contract: "WrappedMyToken",
         from: firstAccount,    // 使用 firstAccount 地址作为部署者
-        args: ["HatToken", "HT"],// 合约构造函数的参数
+        args: ["WHatToken", "WHT"],// 合约构造函数的参数
         log: true               // 打印部署日志（方便调试）
     });
     log("Deploying WrappedMyToken success!")
@@ -20,4 +20,4 @@ module.exports = async ({getNamedAccounts, deployments}) => {
 // 4. 定义部署标签（tags），用于选择性部署
 // 执行 `npx hardhat deploy` 会部署所有带 "all" 标签的脚本
 // 执行 `npx hardhat deploy --tags fundme` 仅部署当前脚本
-module.exports.tags = ["all", "destcahin"];
+module.exports.tags = ["all", "destchain"];

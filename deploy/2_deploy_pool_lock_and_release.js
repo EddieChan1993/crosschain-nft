@@ -13,12 +13,12 @@ module.exports = async ({getNamedAccounts, deployments}) => {
     ccipSimulator = await ethers.getContractAt("CCIPLocalSimulator", // 合约名称
         mockCCIPSimulator.address // 合约部署地址
     );
-    const ccipConfig = ccipSimulator.configure();
+    const ccipConfig =await ccipSimulator.configuration();
     _router = ccipConfig.sourceRouter_;
     _link = ccipConfig.linkToken_;
 
     const myToken = await deployments.get("MyToken");
-    nftAddr = myToken.addrss
+    nftAddr = myToken.address
     // 3. 执行部署动作：部署名为 "MockV3Aggregator" 位价合约
     await deploy("NFTPoolLockAndRelease", {
         contract: "NFTPoolLockAndRelease",

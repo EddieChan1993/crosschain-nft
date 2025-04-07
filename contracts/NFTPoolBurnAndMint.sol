@@ -58,10 +58,10 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
     constructor(
         address _router,
         address _link,
-        address nftAddr
+        address wnftAddr
     ) CCIPReceiver(_router) {
         s_linkToken = IERC20(_link);
-        wnft = WrappedMyToken(nftAddr);
+        wnft = WrappedMyToken(wnftAddr);
     }
 
     /// @dev Modifier that checks the receiver address is not 0.
@@ -77,9 +77,6 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         uint64 chainSelector,
         address receiver
     ) public returns (bytes32) {
-        //先lock再burn ，调用transferFrom来lock 为了确保合约拥有销毁权限
-        //transfer NFT to this address to lock the NFT
-        wnft.transferFrom(msg.sender, address(this), tokenId);
         //burn the wnft before send to ccip
         wnft.burn(tokenId);
         //construct data to sent
@@ -175,9 +172,8 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         // Best Practice: For simplicity, the values are hardcoded. It is advisable to use a more dynamic approach
         // where you set the extra arguments off-chain. This allows adaptation depending on the lanes, messages,
         // and ensures compatibility with future CCIP upgrades. Read more about it here: https://docs.chain.link/ccip/best-practices#using-extraargs
-                Client.EVMExtraArgsV2({
-                    gasLimit: 200_000, // Gas limit for the callback on the destination chain
-                    allowOutOfOrderExecution: true // Allows the message to be executed out of order relative to other messages from the same sender
+                Client.EVMExtraArgsV1({
+                    gasLimit: 200_000 // Gas limit for the callback on the destination chain
                 })
             ),
         // Set the feeToken to a feeTokenAddress, indicating specific asset will be used for fees
