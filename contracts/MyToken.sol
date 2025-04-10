@@ -18,6 +18,7 @@ contract MyToken is
     ERC721Burnable
 {
     uint256 private _nextTokenId;
+    //https://filebase.com/  集成IPFS等去中心化存储的平台，简化数据管理。
     string constant META_DATA =
         "https://quick-tan-xerinae.myfilebase.com/ipfs/QmWg47VJfJEeQBavYbY76FfuZSuQczehrhdL7FfM9V8cr3";
 
