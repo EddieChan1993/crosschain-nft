@@ -1,7 +1,7 @@
 // 部署脚本主逻辑，Hardhat 会自动调用此函数
 const {devChains, networkConfig} = require("../hardhat.config.help.js")
 const {network} = require("hardhat");
-
+//npx hardhat deploy --network amoy --tags destchain
 module.exports = async ({getNamedAccounts, deployments}) => {
     // 1. 获取配置中定义的命名账户（在 hardhat.config.js 的 namedAccounts 中配置）
     const {firstAccount} = await getNamedAccounts();
