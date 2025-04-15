@@ -29,6 +29,9 @@ module.exports = {
             }
         }, amoy: {
             url: AMOY_RPC_URL, accounts: [PRIVATE_KEY], chainId: 80002, blockConfirmations: 6,
+            companionNetworks: {
+                destChain: "sepolia"
+            }
         }
     }
 };
