@@ -71,21 +71,34 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         _;
     }
 
+/**
+ * @dev 销毁当前链的 Wrapped NFT，并通过跨链消息通知目标链铸造 NFT
+ * @param tokenId 要销毁的 NFT 的 ID
+ * @param newOwner 目标链上新 NFT 的接收者地址
+ * @param chainSelector 目标链的 Chainlink 链标识符（例如 Ethereum=0，Polygon=1）
+ * @param receiver 目标链上接收跨链消息的合约地址
+ * @return messageId 跨链消息的唯一标识符（用于追踪状态）
+ */
     function burnAndSendNFT(
         uint256 tokenId,
         address newOwner,
         uint64 chainSelector,
         address receiver
     ) public returns (bytes32) {
-        //burn the wnft before send to ccip
+        // 1. 销毁当前链的 Wrapped NFT（需确保调用者有操作权限）
         wnft.burn(tokenId);
-        //construct data to sent
+
+        // 2. 构造跨链消息（包含 NFT ID 和接收者信息）
         bytes memory payload = abi.encode(tokenId, newOwner);
+
+        // 3. 发送跨链消息（使用 LINK 代币支付 Gas 费用）
         bytes32 messageId = sendMessagePayLINK(
-            chainSelector,
-            receiver,
-            payload
+            chainSelector,  // 目标链标识
+            receiver,        // 目标链接收合约
+            payload          // 编码后的跨链数据
         );
+
+        // 4. 返回消息 ID 供后续追踪
         return messageId;
     }
 
@@ -137,17 +150,35 @@ contract NFTPoolBurnAndMint is CCIPReceiver, OwnerIsCreator {
         return messageId;
     }
 
-    /// handle a received message
+/**
+ * @dev 处理跨链消息的回调函数（Chainlink CCIP 接收逻辑）
+ * @param any2EvmMessage 跨链消息结构体，包含来源链、发送者、载荷等数据
+ *
+ * 核心流程：
+ * 1. 解码跨链消息中的请求数据
+ * 2. 根据数据铸造目标链的 Wrapped NFT
+ * 3. 触发铸造事件
+ *
+ * ⚠️ 注意：此函数必须严格验证消息来源以防止攻击
+ */
     function _ccipReceive(
         Client.Any2EVMMessage memory any2EvmMessage
     ) internal override {
-        //address newOwner,uint256  tokenId
+        // █ 安全验证（当前缺失，需补充！）
+        // 应验证消息来源链和发送者地址，例如：
+        // require(any2EvmMessage.sourceChainSelector == ALLOWED_CHAIN_ID, "Invalid chain");
+        // require(any2EvmMessage.sender == TRUSTED_CONTRACT_ADDRESS, "Invalid sender");
+        // 1. 解码跨链消息中的载荷数据
         ReqData memory rd = abi.decode(any2EvmMessage.data, (ReqData));
+        // 提取关键参数
         uint256 tokenId = rd.tokenId;
         address newOwner = rd.newOwner;
-        wnft.mintTokenWithTokenId(newOwner, tokenId);
-
+        // 2. 铸造目标链的 Wrapped NFT
+        wnft.mintTokenWithTokenId(newOwner, tokenId); // 需确保此函数有权限控制
+        // 3. 触发铸造事件
         emit TokenMinted(newOwner, tokenId);
+        // █ 建议补充防重放攻击机制（例如记录已处理的 messageId）
+        // _recordProcessedMessage(any2EvmMessage.messageId);
     }
 
     /// @notice Construct a CCIP message.

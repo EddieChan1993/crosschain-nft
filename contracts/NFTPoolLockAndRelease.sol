@@ -81,9 +81,7 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         uint64 chainSelector,
         address receiver
     ) public returns (bytes32) {
-        //transfer NFT to this address to lock the NFT
         nft.transferFrom(msg.sender, address(this), tokenId);
-        //construct data to sent
         bytes memory payload = abi.encode(tokenId, newOwner);
         bytes32 messageId = sendMessagePayLINK(chainSelector, receiver, payload);
         return messageId;
@@ -137,19 +135,29 @@ contract NFTPoolLockAndRelease is CCIPReceiver, OwnerIsCreator {
         return messageId;
     }
 
-    /// handle a received message
+/**
+ * @dev 处理跨链消息的回调函数（Chainlink CCIP 接收逻辑）
+ * @param any2EvmMessage 包含跨链消息数据的结构体，包括来源链、发送者地址、消息内容等
+ *
+ * 核心流程：
+ * 1. 解码跨链消息中的载荷数据
+ * 2. 将合约内锁定的 NFT 转移给目标用户
+ * 3. 触发资产解锁事件
+ */
     function _ccipReceive(
         Client.Any2EVMMessage memory any2EvmMessage
     ) internal override {
-        //address newOwner,uint256  tokenId
+        // 1. 解码跨链消息中的业务数据
+        // ReqData 结构体应包含 tokenId 和 newOwner 字段
         ReqData memory rd = abi.decode(any2EvmMessage.data, (ReqData));
-        uint256 tokenId = rd.tokenId;
-        address newOwner = rd.newOwner;
-        //check if the nft is locked
-        //transform ntf to newOwner
+        // 提取目标参数
+        uint256 tokenId = rd.tokenId;       // 要解锁的 NFT 唯一标识
+        address newOwner = rd.newOwner;     // NFT 接收者地址
+        // 2. 执行 NFT 所有权转移（从合约锁定地址转给接收者）
+        // 注意：需确保合约当前持有该 NFT
         nft.transferFrom(address(this), newOwner, tokenId);
-
-        emit TokenUnlock(newOwner, tokenId);
+        // 3. 触发资产解锁事件
+        emit TokenUnlock(newOwner, tokenId); // 记录解锁操作
     }
 
     /// @notice Construct a CCIP message.
